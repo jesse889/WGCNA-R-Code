@@ -1,5 +1,5 @@
 ## WGCNA R Code
-## Download data to follow along: "MB.0.03.subsample.fn.shared", "OxygenMatrixMonterey.csv"
+## Download data to follow along: "MB.0.03.subsample.fn.txt", "OxygenMatrixMonterey.csv"
 
 
 ## Pre-WGCNA Data preparation
@@ -8,7 +8,7 @@
 ## Note: OTUs represent 16S rRNA sequences that were assessed with the universal primers 515F-Y (5'-GTGYCAGCMGCCGCGGTAA) and 926R (5'-CCGYCAATTYMTTTRAGTTT) and were created using a 97% similarity cutoff 
 ## Note: These populations have been previously subsampled to the smallest library size
 ## Note: All of the above processing took place in mothur
-data<-read.table("MB.0.03.subsample.fn.shared",header=T,na.strings="NA")
+data<-read.table("MB.0.03.subsample.fn.txt",header=T,na.strings="NA")
 
 ## Get rid of first three columns since the OTUs don't actually start until the 4th column
 data1 = data[-1][-1][-1]
