@@ -14,14 +14,14 @@ data<-read.table("MB.0.03.subsample.fn.txt",header=T,na.strings="NA")
 data1 = data[-1][-1][-1]
 
 ## You should turn your raw abundance values into a relative abundance matrix and transform it
-## I recommend a Hellinger Transformation (a square root of the realtive abundance)--this effectively gives low weight to variables with low counts and many zeros
-## It would also also be possible to do the Logarithmic tranformation of Anderson et al. (2006): log_b(x)+1 for X>0 and zeros are left as zeros
+## I recommend a Hellinger Transformation (a square root of the relative abundance)--this effectively gives low weight to variables with low counts and many zeros
+## It would also also be possible to do the Logarithmic transformation of Anderson et al. (2006): log_b(x)+1 for X>0 and zeros are left as zeros
 library("vegan", lib.loc="~/R/win-library/3.3")
 HellingerData<-decostand(data1,method = "hellinger")
 #AndersonData<-decostand(data1,method = "log", logbase=2)
 
 ## You have to limit the OTUs to the most frequent ones (ones that occur in multiple samples so that you can measure co-occurance across samples)
-## I just looked at my data file and looked for where zeros became extremely common. This was easy because mothur sorts the OTUs accroding to abundance
+## I just looked at my data file and looked for where zeros became extremely common. This was easy because mothur sorts the OTUs according to abundance
 ## If you would like a more objective way of selecting the OTUs or if your OTUs are not sorted you then this code may help:
 ## lessdata <- data1[,colSums(data1) > 0.05] ##Though you will have to decide what cutoff works best for your data
 ## You also have to reattach Group Name column
@@ -132,7 +132,7 @@ collectGarbage()
 ## Now expression data (relative abundances of OTUs) is in the variable datExpr0 and the corresponding Environmental traits in the variable datTraits
 
 ##################################################################################
-## Visualize how Environmental traits relate to culstered samples (visualized with the dendogram from above)
+## Visualize how Environmental traits relate to clustered samples (visualized with the dendogram from above)
 
 ## Again, used datExpr0 for this because we did not need to do certain above steps
 ## Can use any of the datTraits for this step
@@ -286,14 +286,14 @@ plotDendroAndColors(TaxaTree, dynamicColors, "Dynamic Tree Cut",
 
 ##################################################################################
 
-## Quatify co-expression similarity of the entire modules using eigengenes and cluter them on their correlation:
-## Note: An eigengene is 1st principal component of module expression matrix and represents a suitably defined average OTU community
+## Quatify co-expression similarity of the entire modules using eigengenes and cluster them based on their correlation:
+## Note: An eigengene is 1st principal component of a module expression matrix and represents a suitably defined average OTU community
 
 ## Calculate eigengenes
 MEList = moduleEigengenes(datExpr0, colors = dynamicColors)
 MEs = MEList$eigengenes
 
-## Calculate dissimilarity of module eigengenes--Can fix if change to 1+ rather than 1- because all eigengenes were negative
+## Calculate dissimilarity of module eigengenes
 MEDiss = 1-cor(MEs);
 
 ## Cluster module eigengenes
@@ -306,7 +306,7 @@ plot(METree, main = "Clustering of module eigengenes",
 
 ##################################################################################
 
-## Chose a height cut of 0.25, corresponding to correlation of 0.75, to merge--so nothing got merged
+## Chose a height cut of 0.30, corresponding to a similarity of 0.70 to merge--so nothing got merged
 MEDissThres = 0.30
 
 ## Plot the cut line into the dendrogram
@@ -385,7 +385,7 @@ plot(cmd1, col=as.character(mergedColors),  main="
 nTaxa = ncol(datExpr0);
 nSamples = nrow(datExpr0);
 
-## Recalculate MEs (modules) with color labels
+## Recalculate MEs (module eigengenes) with color labels
 MEs0 = moduleEigengenes(datExpr0, moduleColors)$eigengenes
 MEs = orderMEs(MEs0)
 moduleTraitCor = cor(MEs, datTraits, use = "p");
@@ -418,10 +418,10 @@ labeledHeatmap(Matrix = moduleTraitCor,
 
 ##################################################################################
 
-## This section quantifies associations of individual taxa with out trait of interest
+## This section quantifies associations of individual taxa with our trait of interest
 ## Have to look at previous step to figure out what color modules correlate significantly with certain traits
 
-## Define variable weight containing the weight column of datTrait
+## Define variable we are interested in from datTrait
 CR = as.data.frame(datTraits$CR);
 names(CR) = "CR"
 
@@ -473,7 +473,7 @@ sum(is.na(probes2annot))
 
 ##################################################################################
 
-## Tempeate the starting data frame
+## Create the starting data frame
 TaxaInfo0 = data.frame(Taxon = probes,
                        TaxaSymbol = annot$OTU[probes2annot],
                        LinkID = annot$Taxonomy[probes2annot],
@@ -505,18 +505,21 @@ TaxaInfo = TaxaInfo0[TaxaOrder, ]
 write.csv(TaxaInfo, file = "TaxaInfo.csv")
 
 ## NOTES:
-## GS stands for Gene Significance (for us it means taxon significance) while MM stands for module membership
-## MM column gives the module membership correlation (correlates expression with module eigengene of a given module). If close to 0 then the gene/taxa is not part of that color module. If it is close to 1 or -1 then it is highly connected to that color module genes/taxa.
-## GS allows incorporation of extrnal info int he co-expression network by showing gene significance. The higher the absolute value of GS the more biologically significant the ... gene/taxa.
-## Modules will be ordered by their signifcance for weight, with the most signifcant ones to the left.
-## Each of the modules (with each OTU assigned to exactly one module) will be represented for the Environmental trait you selected
-## You will have to rerun this for each Environmental trait you are interested in
 
-## Output: moduleColor = module that the OTU was ultimately put in
-## Output: GS.Environmentaltrait = Pearson Correlation Coefficient for that OTU with the trait
-## Output: p.GS.Environmentaltrait = P value for the preceeding relationship
-## Output: MM.color = Pearson Correlation Coefficient for Module Membership--i.e. how well that OTU correlates with that particular color module (each OTU has a value for each module but only belongs to one module)
-## Output: p.MM.color = P value for the preceeding relationship
+##moduleColor is the module that the OTU was ultimately put into
+
+##GS stands for Gene Significance (for us it means taxon significance) while MM stands for module membership
+##GS.Environmentaltrait = Pearson Correlation Coefficient for that OTU with the trait
+##Output: p.GS.Environmentaltrait = P value for the preceeding relationship
+
+##MM column gives the module membership correlation (correlates expression with module eigengene of a given module). If close to 0 then the taxa is not part of that color module (since each OTU has to be put in a module you may get some OTUs that are close to 0, but they aren't important to that module). If it is close to 1 or -1 then it is highly connected to that color module genes/taxa.
+##MM.color = Pearson Correlation Coefficient for Module Membership--i.e. how well that OTU correlates with that particular color module (each OTU has a value for each module but only belongs to one module)
+##p.MM.color = P value for the preceeding relationship
+
+##GS allows incorporation of external info into the co-expression network by showing gene significance. The higher the absolute value of GS the more biologically significant the gene (or in our case taxa).
+##Modules will be ordered by their significance for weight, with the most significant ones to the left.
+##Each of the modules (with each OTU assigned to exactly one module) will be represented for the Environmental trait you selected
+##You will have to rerun this for each Environmental trait you are interested in
 
 
 ##################################################################################
