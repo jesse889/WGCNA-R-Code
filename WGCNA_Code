@@ -504,23 +504,21 @@ TaxaInfo = TaxaInfo0[TaxaOrder, ]
 
 write.csv(TaxaInfo, file = "TaxaInfo.csv")
 
-## NOTES:
+## NOTES on output:
 
-##moduleColor is the module that the OTU was ultimately put into
+## moduleColor is the module that the OTU was ultimately put into
 
-##GS stands for Gene Significance (for us it means taxon significance) while MM stands for module membership
-##GS.Environmentaltrait = Pearson Correlation Coefficient for that OTU with the trait
-##Output: p.GS.Environmentaltrait = P value for the preceeding relationship
+## GS stands for Gene Significance (for us it means taxon significance) while MM stands for module membership.
 
-##MM column gives the module membership correlation (correlates expression with module eigengene of a given module). If close to 0 then the taxa is not part of that color module (since each OTU has to be put in a module you may get some OTUs that are close to 0, but they aren't important to that module). If it is close to 1 or -1 then it is highly connected to that color module genes/taxa.
-##MM.color = Pearson Correlation Coefficient for Module Membership--i.e. how well that OTU correlates with that particular color module (each OTU has a value for each module but only belongs to one module)
-##p.MM.color = P value for the preceeding relationship
+## GS.Environmentaltrait = Pearson Correlation Coefficient for that OTU with the trait. GS allows incorporation of external info into the co-expression network by showing gene/OTU significance. The higher the absolute value of GS the more biologically significant the gene (or in our case taxa) to that external variable (e.g. CR).
+## p.GS.Environmentaltrait = P value for the preceding relationship.
 
-##GS allows incorporation of external info into the co-expression network by showing gene significance. The higher the absolute value of GS the more biologically significant the gene (or in our case taxa).
-##Modules will be ordered by their significance for weight, with the most significant ones to the left.
-##Each of the modules (with each OTU assigned to exactly one module) will be represented for the Environmental trait you selected
-##You will have to rerun this for each Environmental trait you are interested in
+## MM.color = Pearson Correlation Coefficient for Module Membership--i.e. how well that OTU correlates with that particular color module (each OTU has a value for each module but only belongs to one module). If close to 0 or negative then the taxa is not part of that color module (since each OTU has to be put in a module you may get some OTUs that are close to 0, but they aren't important to that module). If it is close to 1 then it is highly connected to that color module, but will be placed with the color module that it is most connected to throughout the samples.
+## p.MM.color = P value for the preceding relationship.
 
+## Modules will be ordered by their significance for the external variable you selected (e.g. CR), with the most significant ones to the left.
+## Each of the modules (with each OTU assigned to exactly one module) will be represented for the environmental trait you selected.
+## You will have to rerun this for each environmental trait you are interested in.
 
 ##################################################################################
 ##################################################################################
