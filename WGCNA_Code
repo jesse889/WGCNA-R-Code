@@ -481,7 +481,7 @@ TaxaInfo0 = data.frame(Taxon = probes,
                        TaxaTraitSignificance,
                        GSPvalue)
 
-## Order modules by their significance for weight
+## Order modules by their significance for our environmental trait of interest
 modOrder = order(-abs(cor(MEs, CR, use = "p")));
 
 ## Add module membership information in the chosen order
